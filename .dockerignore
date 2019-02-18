@@ -1,0 +1,5 @@
+.git/
+backend/vendor/
+backend/docker/
+frontend/node_modules/
+frontend/yarn-error.log

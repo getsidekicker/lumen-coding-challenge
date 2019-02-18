@@ -1,0 +1,73 @@
+version: '3'
+services:
+
+  #PHP Service
+  coding-challenge-backend:
+    build:
+      context: ./backend
+      dockerfile: ./docker/Dockerfile
+    image: backend
+    container_name: coding-challenge-backend
+    restart: unless-stopped
+    tty: true
+    working_dir: /var/www
+    volumes:
+       - ./backend/:/var/www
+       - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+    networks:
+      - app-network
+
+  #Nginx Service
+  webserver:
+    image: nginx:alpine
+    container_name: coding-challenge-webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend/:/var/www
+      - ./backend/docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
+
+  #MySQL Service
+  db:
+    image: mysql:5.7.22
+    container_name: coding-challenge-db
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_DATABASE: lumen
+      MYSQL_ROOT_PASSWORD: your_mysql_root_password
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    volumes:
+      - dbdata:/var/lib/mysql
+      - ./backend/docker/mysql/my.cnf:/etc/mysql/my.cnf
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+    image: coding-challenge-frontend
+    environment:
+      - NODE_ENV=development
+      - CHOKIDAR_USEPOLLING=true
+    ports:
+      - 80:3000
+    volumes:
+       - ./frontend:/var/www
+
+#Docker Networks
+networks:
+  app-network:
+    driver: bridge
+
+#Volumes
+volumes:
+  dbdata:
+    driver: local
