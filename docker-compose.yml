@@ -12,9 +12,9 @@ services:
     tty: true
     working_dir: /var/www
     volumes:
-       - ./backend/:/var/www
-       - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
-       - '/var/www/vendor'
+      - ./backend/:/var/www
+      - ./backend/docker/php/local.ini:/usr/local/etc/php/conf.d/local.ini
+      - '/var/www/vendor'
     networks:
       - app-network
 
@@ -51,18 +51,19 @@ services:
     networks:
       - app-network
 
-  frontend:
+  coding-challenge-frontend:
     build:
       context: ./frontend
-    image: coding-challenge-frontend
+    image: frontend
+    container_name: coding-challenge-frontend
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
     ports:
       - 80:3000
     volumes:
-       - ./frontend:/var/www
-       - '/var/www/node_modules'
+      - ./frontend:/var/www
+      - '/var/www/node_modules'
 
 #Docker Networks
 networks:
