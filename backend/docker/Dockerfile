@@ -1,12 +1,11 @@
 #
 # PHP Dependencies
 #
-FROM composer:1.7 as vendor
+FROM composer:2.0 as vendor
 
 COPY database/ database/
 COPY tests/ tests/
 COPY composer.json composer.json
-COPY composer.lock composer.lock
 
 RUN composer install \
     --ignore-platform-reqs \
@@ -18,7 +17,7 @@ RUN composer install \
 #
 # Application
 #
-FROM php:7.3-fpm-buster
+FROM php:8.0.0-fpm-buster
 
 # Set working directory
 WORKDIR /var/www
@@ -28,6 +27,7 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     default-mysql-client \
     libpng-dev \
+    libonig-dev \
     libjpeg62-turbo-dev \
     libfreetype6-dev \
     locales \
@@ -41,7 +41,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install extensions
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl
-RUN docker-php-ext-configure gd --with-gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/ --with-png-dir=/usr/include/
+RUN docker-php-ext-configure gd --enable-gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/
 RUN docker-php-ext-install gd
 
 # Add user for laravel application
